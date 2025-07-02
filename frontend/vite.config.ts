@@ -7,6 +7,11 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: false,
+    rollupOptions: {
+      input: {
+        main: './index.html'
+      }
+    }
   },
   server: {
     port: 3000,
@@ -14,4 +19,5 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  publicDir: 'public'
 }) 
