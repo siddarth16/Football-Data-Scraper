@@ -31,7 +31,7 @@ const Leagues: React.FC = () => {
 
   const fetchLeagues = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/leagues`);
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_API_URL || import.meta.env.REACT_APP_API_URL}/leagues`);
       const data = await response.json();
       
       if (data.success) {

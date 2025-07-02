@@ -32,7 +32,7 @@ const Profile: React.FC = () => {
 
   const fetchSavedPredictions = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/saved-predictions`, {
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_API_URL || import.meta.env.REACT_APP_API_URL}/auth/saved-predictions`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`
         }
