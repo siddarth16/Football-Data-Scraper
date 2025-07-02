@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { config } from '../config';
 
 interface Prediction {
   id: number;
@@ -52,8 +53,6 @@ interface PredictionsContextType {
 
 const PredictionsContext = createContext<PredictionsContextType | undefined>(undefined);
 
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-
 export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [savedPredictions, setSavedPredictions] = useState<Prediction[]>([]);
@@ -72,7 +71,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         });
       }
 
-      const response = await axios.get(`${API_BASE_URL}/predictions?${params}`);
+      const response = await axios.get(`${config.apiUrl}/predictions?${params}`);
       
       if (response.data.success) {
         setPredictions(response.data.data.data || []);
@@ -93,7 +92,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setError(null);
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/predictions/today`);
+      const response = await axios.get(`${config.apiUrl}/predictions/today`);
       
       if (response.data.success) {
         setPredictions(response.data.data || []);
@@ -114,7 +113,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setError(null);
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/predictions/tomorrow`);
+      const response = await axios.get(`${config.apiUrl}/predictions/tomorrow`);
       
       if (response.data.success) {
         setPredictions(response.data.data || []);
@@ -135,7 +134,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setError(null);
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/predictions/high-confidence`);
+      const response = await axios.get(`${config.apiUrl}/predictions/high-confidence`);
       
       if (response.data.success) {
         setPredictions(response.data.data || []);
@@ -153,7 +152,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const savePrediction = async (predictionId: number) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/save-prediction`, {
+      const response = await axios.post(`${config.apiUrl}/auth/save-prediction`, {
         predictionId
       });
       
@@ -172,7 +171,7 @@ export const PredictionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const fetchSavedPredictions = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/auth/saved-predictions`);
+      const response = await axios.get(`${config.apiUrl}/auth/saved-predictions`);
       
       if (response.data.success) {
         setSavedPredictions(response.data.data || []);

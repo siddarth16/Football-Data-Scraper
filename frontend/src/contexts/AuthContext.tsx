@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
+import { config } from '../config';
 
 interface AuthContextType {
   user: User | null;
@@ -13,22 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const supabaseUrl = import.meta.env.VITE_REACT_APP_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_REACT_APP_SUPABASE_ANON_KEY || import.meta.env.REACT_APP_SUPABASE_ANON_KEY || '';
-
-// Debug logging
-console.log('Environment Variables Debug:');
-console.log('VITE_REACT_APP_SUPABASE_URL:', import.meta.env.VITE_REACT_APP_SUPABASE_URL);
-console.log('REACT_APP_SUPABASE_URL:', import.meta.env.REACT_APP_SUPABASE_URL);
-console.log('Final supabaseUrl:', supabaseUrl);
-console.log('Final supabaseKey length:', supabaseKey.length);
-
-if (!supabaseUrl) {
-  console.error('SUPABASE_URL is missing!');
-  console.error('Available env vars:', Object.keys(import.meta.env));
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(config.supabase.url, config.supabase.anonKey);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
