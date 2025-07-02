@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Football betting prediction frontend",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.4",
     "@types/node": "^20.10.4",

@@ -3,7 +3,8 @@ services:
     name: football-predictions
     env: static
     plan: free
-    buildCommand: npm install && npm run build
+    nodeVersion: 18.19.0
+    buildCommand: npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
