@@ -3,7 +3,7 @@ services:
     name: football-predictions
     env: static
     plan: free
-    nodeVersion: 18.19.0
+    nodeVersion: 20.11.0
     buildCommand: npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./build
     envVars:
@@ -13,4 +13,6 @@ services:
         sync: false
       - key: REACT_APP_SUPABASE_ANON_KEY
         sync: false
+      - key: GENERATE_SOURCEMAP
+        value: "false"
     autoDeploy: true 
