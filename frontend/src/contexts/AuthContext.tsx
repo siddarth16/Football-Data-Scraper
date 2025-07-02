@@ -16,6 +16,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const supabaseUrl = import.meta.env.VITE_REACT_APP_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_REACT_APP_SUPABASE_ANON_KEY || import.meta.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
+// Debug logging
+console.log('Environment Variables Debug:');
+console.log('VITE_REACT_APP_SUPABASE_URL:', import.meta.env.VITE_REACT_APP_SUPABASE_URL);
+console.log('REACT_APP_SUPABASE_URL:', import.meta.env.REACT_APP_SUPABASE_URL);
+console.log('Final supabaseUrl:', supabaseUrl);
+console.log('Final supabaseKey length:', supabaseKey.length);
+
+if (!supabaseUrl) {
+  console.error('SUPABASE_URL is missing!');
+  console.error('Available env vars:', Object.keys(import.meta.env));
+}
+
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
