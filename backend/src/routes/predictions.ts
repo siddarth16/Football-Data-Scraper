@@ -4,6 +4,41 @@ import { PredictionFilters, ApiResponse, PaginatedResponse } from '../types';
 
 const router = express.Router();
 
+// Test endpoint to check database connection
+router.get('/test', async (req: Request, res: Response) => {
+  try {
+    console.log('Testing database connection...');
+    
+    // Simple test query
+    const { data, error } = await supabase
+      .from('predictions')
+      .select('id')
+      .limit(1);
+
+    if (error) {
+      console.error('Database test error:', error);
+      return res.status(500).json({
+        success: false,
+        error: `Database connection failed: ${error.message}`
+      });
+    }
+
+    console.log('Database connection successful');
+    res.json({
+      success: true,
+      message: 'Database connection successful',
+      data: data || []
+    });
+
+  } catch (error) {
+    console.error('Test endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      error: `Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
 // Get all predictions with filters
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -186,9 +221,28 @@ router.get('/high-confidence', async (req: Request, res: Response) => {
 // Get predictions for today
 router.get('/today', async (req: Request, res: Response) => {
   try {
+    console.log('Fetching today\'s predictions...');
+    
+    // First, let's check if the predictions table exists and has data
+    const { data: tableCheck, error: tableError } = await supabase
+      .from('predictions')
+      .select('count', { count: 'exact', head: true });
+
+    if (tableError) {
+      console.error('Table check error:', tableError);
+      return res.status(500).json({
+        success: false,
+        error: `Database error: ${tableError.message}`
+      } as ApiResponse<null>);
+    }
+
+    console.log('Total predictions in database:', tableCheck);
+
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
+    console.log('Date range:', { startOfDay, endOfDay });
 
     const { data, error } = await supabase
       .from('predictions')
@@ -206,11 +260,14 @@ router.get('/today', async (req: Request, res: Response) => {
       .order('match.date', { ascending: true });
 
     if (error) {
+      console.error('Supabase error:', error);
       return res.status(500).json({
         success: false,
-        error: 'Failed to fetch today\'s predictions'
+        error: `Failed to fetch today's predictions: ${error.message}`
       } as ApiResponse<null>);
     }
+
+    console.log('Successfully fetched predictions:', data?.length || 0);
 
     res.json({
       success: true,
@@ -221,7 +278,7 @@ router.get('/today', async (req: Request, res: Response) => {
     console.error('Error fetching today\'s predictions:', error);
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`
     } as ApiResponse<null>);
   }
 });
