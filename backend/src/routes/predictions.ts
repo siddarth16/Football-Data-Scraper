@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { supabase } from '../index';
 import { PredictionFilters, ApiResponse, PaginatedResponse } from '../types';
 
 const router = express.Router();
 
 // Get all predictions with filters
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const {
       league,
@@ -103,7 +103,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get prediction by match ID
-router.get('/match/:matchId', async (req, res) => {
+router.get('/match/:matchId', async (req: Request, res: Response) => {
   try {
     const { matchId } = req.params;
 
@@ -143,7 +143,7 @@ router.get('/match/:matchId', async (req, res) => {
 });
 
 // Get high confidence predictions
-router.get('/high-confidence', async (req, res) => {
+router.get('/high-confidence', async (req: Request, res: Response) => {
   try {
     const { limit = 10 } = req.query;
 
@@ -184,7 +184,7 @@ router.get('/high-confidence', async (req, res) => {
 });
 
 // Get predictions for today
-router.get('/today', async (req, res) => {
+router.get('/today', async (req: Request, res: Response) => {
   try {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
@@ -227,7 +227,7 @@ router.get('/today', async (req, res) => {
 });
 
 // Get predictions for tomorrow
-router.get('/tomorrow', async (req, res) => {
+router.get('/tomorrow', async (req: Request, res: Response) => {
   try {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -271,7 +271,7 @@ router.get('/tomorrow', async (req, res) => {
 });
 
 // Get prediction statistics
-router.get('/stats', async (req, res) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     // Get total predictions
     const { count: totalPredictions } = await supabase

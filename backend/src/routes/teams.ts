@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { supabase } from '../index';
 import { ApiResponse, PaginatedResponse } from '../types';
 
 const router = express.Router();
 
 // Get all teams
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 20, country, league } = req.query;
 
@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get team by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -100,7 +100,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Get team matches
-router.get('/:id/matches', async (req, res) => {
+router.get('/:id/matches', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { limit = 10 } = req.query;
@@ -131,6 +131,38 @@ router.get('/:id/matches', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching team matches:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    } as ApiResponse<null>);
+  }
+});
+
+// Get teams by league ID
+router.get('/league/:leagueId', async (req: Request, res: Response) => {
+  try {
+    const { leagueId } = req.params;
+
+    const { data, error } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('league_id', leagueId)
+      .order('name', { ascending: true });
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        error: error.message
+      } as ApiResponse<null>);
+    }
+
+    res.json({
+      success: true,
+      data: data || []
+    } as ApiResponse<any[]>);
+
+  } catch (error) {
+    console.error('Error fetching teams by league:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

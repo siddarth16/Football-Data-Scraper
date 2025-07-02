@@ -4,14 +4,15 @@
   "description": "Autonomous football betting prediction API",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --skipLibCheck",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "update-data": "node scripts/update-data.js",
-    "generate-predictions": "node scripts/generate-predictions.js"
+    "generate-predictions": "node scripts/generate-predictions.js",
+    "postinstall": "npm run build"
   },
   "keywords": ["football", "predictions", "betting", "api"],
   "author": "Football Predictions Team",
@@ -38,6 +39,8 @@
     "@types/compression": "^1.7.5",
     "@types/lodash": "^4.14.202",
     "@types/node-cron": "^3.0.11",
+    "@types/helmet": "^4.0.0",
+    "@types/joi": "^17.2.3",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "eslint": "^8.54.0",

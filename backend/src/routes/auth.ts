@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { supabase } from '../index';
 import { ApiResponse } from '../types';
 
 const router = express.Router();
 
 // Get current user
-router.get('/user', async (req, res) => {
+router.get('/user', async (req: Request, res: Response) => {
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -31,7 +31,7 @@ router.get('/user', async (req, res) => {
 });
 
 // Sign up
-router.post('/signup', async (req, res) => {
+router.post('/signup', async (req: Request, res: Response) => {
   try {
     const { email, password, username } = req.body;
 
@@ -68,7 +68,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // Sign in
-router.post('/signin', async (req, res) => {
+router.post('/signin', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -100,7 +100,7 @@ router.post('/signin', async (req, res) => {
 });
 
 // Sign out
-router.post('/signout', async (req, res) => {
+router.post('/signout', async (req: Request, res: Response) => {
   try {
     const { error } = await supabase.auth.signOut();
 
@@ -126,7 +126,7 @@ router.post('/signout', async (req, res) => {
 });
 
 // Save user prediction
-router.post('/save-prediction', async (req, res) => {
+router.post('/save-prediction', async (req: Request, res: Response) => {
   try {
     const { predictionId } = req.body;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -168,7 +168,7 @@ router.post('/save-prediction', async (req, res) => {
 });
 
 // Get user saved predictions
-router.get('/saved-predictions', async (req, res) => {
+router.get('/saved-predictions', async (req: Request, res: Response) => {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -205,11 +205,51 @@ router.get('/saved-predictions', async (req, res) => {
 
     res.json({
       success: true,
-      data: data || []
-    } as ApiResponse<any[]>);
+      data
+    } as ApiResponse<any>);
 
   } catch (error) {
-    console.error('Error fetching saved predictions:', error);
+    console.error('Error getting saved predictions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    } as ApiResponse<null>);
+  }
+});
+
+// Remove saved prediction
+router.delete('/saved-prediction/:predictionId', async (req: Request, res: Response) => {
+  try {
+    const { predictionId } = req.params;
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Not authenticated'
+      } as ApiResponse<null>);
+    }
+
+    const { error } = await supabase
+      .from('user_predictions')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('prediction_id', predictionId);
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        error: error.message
+      } as ApiResponse<null>);
+    }
+
+    res.json({
+      success: true,
+      message: 'Prediction removed successfully'
+    } as ApiResponse<null>);
+
+  } catch (error) {
+    console.error('Error removing saved prediction:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

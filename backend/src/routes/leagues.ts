@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { supabase } from '../index';
 import { ApiResponse } from '../types';
 
 const router = express.Router();
 
 // Get all leagues
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { data, error } = await supabase
       .from('leagues')
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     if (error) {
       return res.status(500).json({
         success: false,
-        error: 'Failed to fetch leagues'
+        error: error.message
       } as ApiResponse<null>);
     }
 
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get league by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -66,7 +66,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Get league teams
-router.get('/:id/teams', async (req, res) => {
+router.get('/:id/teams', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -79,7 +79,7 @@ router.get('/:id/teams', async (req, res) => {
     if (error) {
       return res.status(500).json({
         success: false,
-        error: 'Failed to fetch league teams'
+        error: error.message
       } as ApiResponse<null>);
     }
 

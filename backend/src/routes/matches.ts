@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { supabase } from '../index';
 import { MatchFilters, ApiResponse, PaginatedResponse } from '../types';
 
 const router = express.Router();
 
 // Get all matches with filters
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const {
       league,
@@ -96,7 +96,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get match by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -135,7 +135,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Get live matches
-router.get('/live/current', async (req, res) => {
+router.get('/live/current', async (req: Request, res: Response) => {
   try {
     const { data, error } = await supabase
       .from('matches')
@@ -170,7 +170,7 @@ router.get('/live/current', async (req, res) => {
 });
 
 // Get upcoming matches
-router.get('/upcoming', async (req, res) => {
+router.get('/upcoming', async (req: Request, res: Response) => {
   try {
     const { hours = 48 } = req.query;
     const fromDate = new Date().toISOString();
@@ -211,7 +211,7 @@ router.get('/upcoming', async (req, res) => {
 });
 
 // Get recent matches
-router.get('/recent', async (req, res) => {
+router.get('/recent', async (req: Request, res: Response) => {
   try {
     const { days = 7 } = req.query;
     const fromDate = new Date(Date.now() - parseInt(days as string) * 24 * 60 * 60 * 1000).toISOString();
