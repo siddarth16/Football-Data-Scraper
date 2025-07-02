@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: football-predictions
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://football-predictions-api.onrender.com/api
+      - key: REACT_APP_SUPABASE_URL
+        sync: false
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        sync: false
+    autoDeploy: true 
