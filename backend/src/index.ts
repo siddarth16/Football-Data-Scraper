@@ -148,6 +148,132 @@ app.get('/api/db-status', async (req, res) => {
   }
 });
 
+// Add sample data endpoint
+app.post('/api/add-sample-data', async (req, res) => {
+  try {
+    logger.info('Adding sample data...');
+    
+    // Add sample league
+    const { data: league, error: leagueError } = await supabase
+      .from('leagues')
+      .insert({
+        name: 'Premier League',
+        country: 'England',
+        season: 2024,
+        round: 'Regular Season'
+      })
+      .select()
+      .single();
+    
+    if (leagueError) {
+      logger.error('League insert error:', leagueError);
+      return res.status(500).json({
+        success: false,
+        error: `Failed to insert league: ${leagueError.message}`
+      });
+    }
+    
+    // Add sample teams
+    const { data: teams, error: teamsError } = await supabase
+      .from('teams')
+      .insert([
+        {
+          name: 'Manchester United',
+          code: 'MUN',
+          country: 'England',
+          logo: 'https://media.api-sports.io/football/teams/33.png'
+        },
+        {
+          name: 'Liverpool',
+          code: 'LIV',
+          country: 'England',
+          logo: 'https://media.api-sports.io/football/teams/40.png'
+        }
+      ])
+      .select();
+    
+    if (teamsError) {
+      logger.error('Teams insert error:', teamsError);
+      return res.status(500).json({
+        success: false,
+        error: `Failed to insert teams: ${teamsError.message}`
+      });
+    }
+    
+    // Add sample match
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const { data: match, error: matchError } = await supabase
+      .from('matches')
+      .insert({
+        date: tomorrow.toISOString(),
+        league_id: league.id,
+        home_team_id: teams[0].id,
+        away_team_id: teams[1].id,
+        status: 'SCHEDULED'
+      })
+      .select()
+      .single();
+    
+    if (matchError) {
+      logger.error('Match insert error:', matchError);
+      return res.status(500).json({
+        success: false,
+        error: `Failed to insert match: ${matchError.message}`
+      });
+    }
+    
+    // Add sample prediction
+    const { data: prediction, error: predictionError } = await supabase
+      .from('predictions')
+      .insert({
+        match_id: match.id,
+        home_win_probability: 0.45,
+        draw_probability: 0.28,
+        away_win_probability: 0.27,
+        both_teams_score_probability: 0.65,
+        over_2_5_goals_probability: 0.55,
+        under_2_5_goals_probability: 0.45,
+        home_win_or_draw_probability: 0.73,
+        away_win_or_draw_probability: 0.55,
+        home_handicap_1_5_probability: 0.35,
+        away_handicap_1_5_probability: 0.25,
+        confidence_score: 0.75,
+        prediction_date: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (predictionError) {
+      logger.error('Prediction insert error:', predictionError);
+      return res.status(500).json({
+        success: false,
+        error: `Failed to insert prediction: ${predictionError.message}`
+      });
+    }
+    
+    logger.info('Sample data added successfully');
+    res.json({
+      success: true,
+      message: 'Sample data added successfully',
+      data: {
+        league: league,
+        teams: teams,
+        match: match,
+        prediction: prediction
+      }
+    });
+    
+  } catch (error) {
+    logger.error('Sample data error:', error);
+    res.status(500).json({
+      success: false,
+      error: `Failed to add sample data: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
 // API routes
 app.use('/api/predictions', predictionsRoutes);
 app.use('/api/matches', matchesRoutes);
