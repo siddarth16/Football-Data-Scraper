@@ -108,6 +108,46 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Database status endpoint
+app.get('/api/db-status', async (req, res) => {
+  try {
+    logger.info('Checking database status...');
+    
+    // Check if tables exist
+    const tables = ['leagues', 'teams', 'matches', 'predictions'];
+    const tableStatus = {};
+    
+    for (const table of tables) {
+      try {
+        const { data, error } = await supabase
+          .from(table)
+          .select('count', { count: 'exact', head: true });
+        
+        if (error) {
+          tableStatus[table] = { exists: false, error: error.message };
+        } else {
+          tableStatus[table] = { exists: true, count: data || 0 };
+        }
+      } catch (err) {
+        tableStatus[table] = { exists: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      }
+    }
+    
+    res.json({
+      success: true,
+      database: 'Supabase',
+      tables: tableStatus
+    });
+    
+  } catch (error) {
+    logger.error('Database status check error:', error);
+    res.status(500).json({
+      success: false,
+      error: `Database status check failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
 // API routes
 app.use('/api/predictions', predictionsRoutes);
 app.use('/api/matches', matchesRoutes);
