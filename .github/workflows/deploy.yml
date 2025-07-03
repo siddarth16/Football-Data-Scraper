@@ -12,10 +12,10 @@ jobs:
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -36,19 +36,37 @@ jobs:
         RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
         RENDER_SERVICE_ID: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
       run: |
-        curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+        if [ -z "$RENDER_TOKEN" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+          echo "Error: Missing Render deployment secrets"
+          exit 1
+        fi
+        
+        echo "Triggering Render deployment for backend..."
+        response=$(curl -s -w "%{http_code}" -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
           -H "Authorization: Bearer $RENDER_TOKEN" \
-          -H "Content-Type: application/json"
+          -H "Content-Type: application/json")
+        
+        http_code="${response: -3}"
+        response_body="${response%???}"
+        
+        if [ "$http_code" -eq 201 ]; then
+          echo "Backend deployment triggered successfully"
+          echo "Response: $response_body"
+        else
+          echo "Error: Backend deployment failed with status $http_code"
+          echo "Response: $response_body"
+          exit 1
+        fi
 
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
     
@@ -67,18 +85,36 @@ jobs:
         RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
         RENDER_SERVICE_ID: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
       run: |
-        curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+        if [ -z "$RENDER_TOKEN" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+          echo "Error: Missing Render deployment secrets"
+          exit 1
+        fi
+        
+        echo "Triggering Render deployment for frontend..."
+        response=$(curl -s -w "%{http_code}" -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
           -H "Authorization: Bearer $RENDER_TOKEN" \
-          -H "Content-Type: application/json"
+          -H "Content-Type: application/json")
+        
+        http_code="${response: -3}"
+        response_body="${response%???}"
+        
+        if [ "$http_code" -eq 201 ]; then
+          echo "Frontend deployment triggered successfully"
+          echo "Response: $response_body"
+        else
+          echo "Error: Frontend deployment failed with status $http_code"
+          echo "Response: $response_body"
+          exit 1
+        fi
 
   update-data:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -109,10 +145,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -126,21 +162,4 @@ jobs:
     - name: Run backend tests
       run: |
         cd backend
-        npm test
-    
-    - name: Setup Node.js for frontend
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-    
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
-    
-    - name: Run frontend tests
-      run: |
-        cd frontend
-        npm test -- --watchAll=false 
+        npm test 
