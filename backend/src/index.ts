@@ -153,6 +153,36 @@ app.get('/api/db-status', async (req, res) => {
   }
 });
 
+// Fetch real data from API-Football
+app.post('/api/fetch-real-data', async (req, res) => {
+  try {
+    logger.info('Starting real data fetch from API-Football...');
+    
+    if (!process.env.API_FOOTBALL_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'API_FOOTBALL_KEY not configured'
+      });
+    }
+    
+    // Trigger data update
+    await dataService.updateAllData();
+    
+    logger.info('Real data fetch completed successfully');
+    res.json({
+      success: true,
+      message: 'Real data fetched and stored successfully'
+    });
+    
+  } catch (error) {
+    logger.error('Real data fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: `Failed to fetch real data: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
 // Add sample data endpoint
 app.post('/api/add-sample-data', async (req, res) => {
   try {
