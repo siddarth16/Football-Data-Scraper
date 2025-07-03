@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import cron from 'node-cron';
 import winston from 'winston';
+import axios from 'axios';
 
 // Import routes
 import predictionsRoutes from './routes/predictions';
