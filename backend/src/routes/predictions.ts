@@ -256,8 +256,7 @@ router.get('/today', async (req: Request, res: Response) => {
         )
       `)
       .gte('match.date', startOfDay)
-      .lt('match.date', endOfDay)
-      .order('match.date', { ascending: true });
+      .lt('match.date', endOfDay);
 
     if (error) {
       console.error('Supabase error:', error);
@@ -303,8 +302,7 @@ router.get('/tomorrow', async (req: Request, res: Response) => {
         )
       `)
       .gte('match.date', startOfDay)
-      .lt('match.date', endOfDay)
-      .order('match.date', { ascending: true });
+      .lt('match.date', endOfDay);
 
     if (error) {
       return res.status(500).json({
