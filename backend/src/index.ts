@@ -113,6 +113,46 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Test API-Football connection
+app.get('/api/test-api-football', async (req, res) => {
+  try {
+    logger.info('Testing API-Football connection...');
+    
+    if (!process.env.API_FOOTBALL_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'API_FOOTBALL_KEY not configured'
+      });
+    }
+    
+    // Test with a simple API call to get Premier League info
+    const response = await axios.get('https://v3.football.api-sports.io/leagues?id=39&season=2024', {
+      headers: {
+        'x-rapidapi-key': process.env.API_FOOTBALL_KEY,
+        'x-rapidapi-host': 'v3.football.api-sports.io'
+      }
+    });
+    
+    logger.info('API-Football test successful');
+    res.json({
+      success: true,
+      message: 'API-Football connection successful',
+      data: {
+        status: response.status,
+        results: response.data?.results || 0,
+        league: response.data?.response?.[0]?.league?.name || 'No data'
+      }
+    });
+    
+  } catch (error) {
+    logger.error('API-Football test error:', error);
+    res.status(500).json({
+      success: false,
+      error: `API-Football test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
 // Database status endpoint
 app.get('/api/db-status', async (req, res) => {
   try {
